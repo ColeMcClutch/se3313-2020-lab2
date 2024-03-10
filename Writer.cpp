@@ -1,9 +1,19 @@
 #include <iostream>
 
-/*
+
 struct MyShared{
 	...;
-};*/
+};
+
+class WriterThread {
+public:
+    // Constructor for WriterThread
+    WriterThread(int waitTime) : flag(false), waitTime(waitTime) {}
+
+    // Member variables
+    bool flag;
+    int waitTime;
+};
 
 int main(void)
 {
@@ -13,19 +23,35 @@ int main(void)
 	// This is a possible starting point for using threads and shared memory. 
 	// You do not have to start with this
 	////////////////////////////////////////////////////////////////////////
-	/*...
 	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
-	...
+	WriterThread* thread1 = nullptr;
+    std::string userInput;
 	while(true){
-		...
+		
 		//create thread using user input
-		thread1 = new WriterThread(xyz); //add arguments as needed
-		...
+		std::cout << "Would you like to create a new thread? (yes/no): ";
+        std::cin >> userInput;
+        if (userInput != "yes")
+            break;
+
+        int waitTime;
+        std::cout << "Enter the wait time for the new thread in seconds: ";
+        std::cin >> waitTime;
+
+        thread1 = new WriterThread(waitTime); // Create new WriterThread object
+        // Launch thread with given wait time
+        std::thread([&]() {
+            std::this_thread::sleep_for(std::chrono::seconds(waitTime));
+            thread1->flag = true;
+            delete thread1;
+        }).detach();
+
 	}
 	//example for one thread thread1
 	thread1->flag= true;
 	delete thread1;
-	*/
+	return 0;
+	
 }
 
 
