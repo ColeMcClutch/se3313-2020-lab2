@@ -1,21 +1,33 @@
 #include <iostream>
-
+#include <thread>
+#include <chrono>
+#include <vector>
+#include <atomic>
 
 struct MyShared{
-	...;
+	std::atomic<int> threadId;
+	std::atomic<int> reportId;
+	std::atomic<double> elapsedTime;
 };
 
-class WriterThread {
-public:
-    // Constructor for WriterThread
-    WriterThread(int waitTime) : flag(false), waitTime(waitTime) {}
+void WriterThread(MyShared* sharedMemory, int threadId, int sleepTime) {
+	int reportId=0
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(sleepTime));
 
-    // Member variables
-    bool flag;
-    int waitTime;
+		//Update shared memory
+		sharedMemory->threadId = threadId;
+		sharedMemory->reportId = ++reportId;
+
+		//Calculate time difference
+		double timePast = sleepTime * reportId;
+		sharedMemory->elapsedTime = timePast;
+	}
+	
 };
 
-int main(void)
+int main()
 {
 	std::cout << "I am a Writer" << std::endl;
 	
@@ -23,35 +35,28 @@ int main(void)
 	// This is a possible starting point for using threads and shared memory. 
 	// You do not have to start with this
 	////////////////////////////////////////////////////////////////////////
-	Shared<MyShared> shared("sharedMemory", true); //This is the owner of sharedMamory
-	WriterThread* thread1 = nullptr;
-    std::string userInput;
+	char userInput;
+	MyShared sharedMemory;
+	std::vector<std::thread> threads
 	while(true){
 		
 		//create thread using user input
 		std::cout << "Would you like to create a new thread? (yes/no): ";
         std::cin >> userInput;
-        if (userInput != "yes")
-            break;
+        if (userInput == "yes"){
+			int waitTime;
+        	std::cout << "Enter the wait time for the new thread in seconds: ";
+        	std::cin >> waitTime;
+			threads.emplace_back(threadFunction, &sharedMemory, threads.size() + 1, sleepTime);
 
-        int waitTime;
-        std::cout << "Enter the wait time for the new thread in seconds: ";
-        std::cin >> waitTime;
+		}
+	}while (userInput=='yes');
 
-        thread1 = new WriterThread(waitTime); // Create new WriterThread object
-        // Launch thread with given wait time
-        std::thread([&]() {
-            std::this_thread::sleep_for(std::chrono::seconds(waitTime));
-            thread1->flag = true;
-            delete thread1;
-        }).detach();
-
+	//Join all threads
+	for(auto& thread : threads){
+		thread.join();
 	}
-	//example for one thread thread1
-	thread1->flag= true;
-	delete thread1;
 	return 0;
-	
 }
 
 
