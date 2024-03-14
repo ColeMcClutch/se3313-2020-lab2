@@ -38,7 +38,7 @@ int main()
 	char userInput;
 	MyShared sharedMemory;
 	std::vector<std::thread> threads
-	while(true){
+	do{
 		
 		//create thread using user input
 		std::cout << "Would you like to create a new thread? (yes/no): ";
